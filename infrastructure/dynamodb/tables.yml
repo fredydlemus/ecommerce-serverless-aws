@@ -1,0 +1,56 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DynamoDB Orders Table with GSIs for Customer Orders and Status Order
+
+Resources:
+  OrdersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Orders
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: orderId
+          AttributeType: S
+        - AttributeName: customerId
+          AttributeType: S
+        - AttributeName: orderDate
+          AttributeType: S
+        - AttributeName: status
+          AttributeType: S
+      KeySchema:
+        - AttributeName: orderId
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: GSI-CustomerOrders
+          KeySchema:
+            - AttributeName: customerId
+              KeyType: HASH
+            - AttributeName: orderDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI-StatusOrders
+          KeySchema:
+            - AttributeName: status
+              KeyType: HASH
+            - AttributeName: orderDate
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      Tags:
+        - Key: Project
+          Value: OrderManagement
+        - Key: Environment
+          Value: Production
+
+Outputs:
+  OrdersTableName:
+    Description: Name of the DynamoDB Orders table
+    Value: !Ref OrdersTable
+
+  OrdersTableArn:
+    Description: ARN of the DynamoDB Orders table
+    Value: !GetAtt OrdersTable.Arn
