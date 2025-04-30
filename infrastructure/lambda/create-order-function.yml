@@ -1,0 +1,41 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Lambda function for create orders
+
+Resources:
+  CreateOrderFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: CreateOrderFunctionRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPoliciesArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+      Policies:
+        - PolicyName: CreateOrderPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt OrdersTable.Arn
+
+  CreateOrderFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: CreateOrderFunction
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Role: !GetAtt CreateOrderFunctionRole.Arn
+      Timeout: 10
+      Environment:
+        Variables:
+           ORDERS_TABLE: !Ref OrdersTable
+      Code:
+        S3Bucket: generally-bucket
+        S3Key: create-order.zip
