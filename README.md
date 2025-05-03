@@ -15,21 +15,37 @@ The application is built using the following AWS services:
 
 ### Architecture Diagram
 ```mermaid
+%%{init: {'flowchart': {'nodeSpacing': 50, 'rankSpacing': 50, 'fontFamily': 'Arial'}}}%%
 graph TD
-    Client[Client] -->|HTTP POST /orders| APIGW[API Gateway]
-    APIGW -->|Invoke| Lambda[Lambda Function]
-    Lambda -->|Store Data| DynamoDB[(DynamoDB)]
-    
-    subgraph AWS Cloud
-        APIGW
-        Lambda
-        DynamoDB
-    end
-    
-    style Client fill:#f9f,stroke:#333,stroke-width:2px
-    style APIGW fill:#bbf,stroke:#333,stroke-width:2px
-    style Lambda fill:#bfb,stroke:#333,stroke-width:2px
-    style DynamoDB fill:#fbb,stroke:#333,stroke-width:2px
+  %% Nodes
+  Client(("Client"))
+  APIGW(["API Gateway"])
+  Lambda(["Lambda Function"])
+  DynamoDB[(DynamoDB)]
+
+  %% Connections
+  Client -->|HTTP POST /orders| APIGW
+  APIGW -->|Invoke| Lambda
+  Lambda -->|Store Data| DynamoDB
+
+  %% AWS Cloud boundary
+  subgraph AWSCloud["AWS Cloud"]
+    direction TB
+    APIGW
+    Lambda
+    DynamoDB
+  end
+
+  %% Styling
+  classDef defaultNode fill:#ffffff,stroke:#1F2937,stroke-width:2px,rx:10,ry:10,color:#1F2937,font-weight:bold,font-size:14px;
+  classDef dbNode      fill:#ffffff,stroke:#B33939,stroke-width:2px,rx:10,ry:10,color:#B33939,font-weight:bold,font-size:14px;
+  classDef boundary    fill:none,stroke:#90A4AE,stroke-width:2px,stroke-dasharray:4 4,color:#90A4AE,font-weight:bold,font-size:14px;
+
+  %% Apply classes
+  class Client,APIGW,Lambda defaultNode
+  class DynamoDB dbNode
+  class AWSCloud boundary
+
 ```
 
 ## Current Features
